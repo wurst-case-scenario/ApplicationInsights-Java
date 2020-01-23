@@ -1,0 +1,9 @@
+apply from: "$buildScriptsDir/common-java.gradle"
+
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'io.opentelemetry.auto', name: 'agent-bootstrap', version: '0.1.0-SNAPSHOT'
+}

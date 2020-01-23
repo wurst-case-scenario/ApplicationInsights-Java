@@ -22,12 +22,16 @@
 include 'ApplicationInsightsInternalLogger'
 
 include 'instrumentation:azure-functions'
-include 'agent-codeless'
 include 'core'
 if (System.env.'COLLECTD_HOME') {
     include 'collectd'
 }
 
+include ':agent-ot:agent-bootstrap'
+include ':agent-ot:exporter'
+include ':agent-ot:agent-tooling'
+include ':agent-ot:instrumentation'
+include ':agent-ot:agent'
 
 // Projects for smokeTests
 include ':test:smoke'

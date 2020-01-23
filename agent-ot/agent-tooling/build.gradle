@@ -1,0 +1,93 @@
+/*
+ * ApplicationInsights-Java
+ * Copyright (c) Microsoft Corporation
+ * All rights reserved.
+ *
+ * MIT License
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the ""Software""), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ * persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+apply from: "$buildScriptsDir/common-java.gradle"
+
+repositories {
+    // this is needed as long as we are using OpenTelemetry SNAPSHOT
+    mavenLocal()
+}
+
+// shadowJar() {
+
+// this shades internal use of java util logging which is needed to prevent java util logging from being initialized
+// early (e.g. in the case of jboss which wants to do some setup before jul is initialized)
+// FIXME
+// relocate('java.util.logging', 'org.glowroot.instrumentation.engine.jul')
+
+// FIXME?
+// relocate('logback.configurationFile', 'ai.logback.configurationFile')
+// relocate('logback.xml', 'ai.logback.xml')
+// relocate('logback.groovy', 'ai.logback.groovy') // to prevent accidentally picking up from user's class path
+// relocate('logback-test.xml', 'ai.logback-test.xml') // to prevent accidentally picking up from user's class path
+
+// excluding commons-logging from core, and replacing it with jcl-over-slf4j
+// FIXME
+// exclude 'com/microsoft/applicationinsights/core/dependencies/apachecommons/logging/**'
+
+// FIXME
+// exclude 'META-INF/maven/**'
+// exclude 'META-INF/LICENSE*'
+// exclude 'META-INF/DEPENDENCIES'
+// exclude 'META-INF/NOTICE*'
+// exclude 'META-INF/services/javax.servlet.ServletContainerInitializer'
+// exclude 'META-INF/proguard/**'
+// exclude 'mozilla/**'
+// exclude 'commons-logging.properties'
+// exclude 'module-info.class'
+
+// prevent duplicate files
+// FIXME
+// exclude 'LICENSE'
+// exclude 'NOTICE'
+// }
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.26'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.26' // this is needed to pick up logging from apache http client
+    // FIXME move logback to agent-bootstrap?
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
+
+    // not using gson because it has dependency on java.sql.*, which is not available in Java 9+ bootstrap class loader
+    // only complaint so far about moshi is that it doesn't give line numbers when there are json formatting errors
+    compile 'com.squareup.moshi:moshi:1.8.0'
+
+    compile 'com.google.guava:guava:27.1-android'
+
+    compile 'io.opentelemetry.auto:agent-tooling:0.1.0-SNAPSHOT'
+    compile 'org.checkerframework:checker-qual-android:3.1.0'
+
+    compile(project(':core'))
+    compile(project(':agent-ot:exporter'))
+
+    compileOnly(project(':agent-ot:agent-bootstrap'))
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.hamcrest:hamcrest-core:1.3'
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
+    testCompile 'com.github.stefanbirkner:system-rules:1.19.0'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+}
